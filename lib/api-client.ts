@@ -50,6 +50,18 @@ export class ApiClient {
     return this.request<any>(`/api/residents/${id}`);
   }
 
+  async createResident(data: any) {
+    // Get facilityId from data, localStorage, or fallback
+    const facilityId = data.facilityId ||
+      (typeof window !== 'undefined' && localStorage.getItem('selectedFacilityId')) ||
+      'brunnel-001';
+
+    return this.request<any>('/api/residents', {
+      method: 'POST',
+      body: JSON.stringify({ ...data, facilityId }),
+    });
+  }
+
   async updateResident(id: string, data: any) {
     return this.request<any>(`/api/residents/${id}`, {
       method: 'PATCH',

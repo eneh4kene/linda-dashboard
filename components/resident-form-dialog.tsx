@@ -48,19 +48,20 @@ export function ResidentFormDialog({
     avoidTopics: resident?.avoidTopics || '',
   });
 
-  // Update mutation
+  // Create/Update mutation
   const mutation = useMutation({
     mutationFn: async (data: any) => {
       if (isEditing) {
         return apiClient.updateResident(resident.id, data);
+      } else {
+        return apiClient.createResident(data);
       }
-      // For creating new residents, we'd need a POST endpoint
-      // For now, just show the update flow
-      throw new Error('Create resident not implemented yet');
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['residents'] });
-      queryClient.invalidateQueries({ queryKey: ['resident', resident?.id] });
+      if (isEditing) {
+        queryClient.invalidateQueries({ queryKey: ['resident', resident.id] });
+      }
       onOpenChange(false);
       // Reset form
       setFormData({
