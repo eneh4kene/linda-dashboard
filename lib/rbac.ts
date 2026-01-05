@@ -20,7 +20,13 @@ export type Permission =
   | 'delete:facility';
 
 // Define permissions for each role
+//
+// ROLE SCOPING:
+// - ADMIN: Multi-facility (ai4e1 ltd - Linda's vendor)
+// - MANAGER: Single-facility (can manage their facility's residents & concerns)
+// - STAFF: Single-facility (read-only access to their facility's data)
 export const rolePermissions: Record<UserRole, Permission[]> = {
+  // ADMIN: Full system access across all facilities
   ADMIN: [
     'view:dashboard',
     'view:residents',
@@ -33,30 +39,34 @@ export const rolePermissions: Record<UserRole, Permission[]> = {
     'view:lifebooks',
     'create:lifebook',
     'view:reports',
-    'view:facilities',
+    'view:facilities',      // Only ADMIN can see facilities tab
     'create:facility',
     'edit:facility',
     'delete:facility',
   ],
+  // MANAGER: Manage their own facility's data (no facilities tab)
   MANAGER: [
     'view:dashboard',
     'view:residents',
-    'create:resident',
-    'edit:resident',
+    'create:resident',      // Can create residents in their facility
+    'edit:resident',        // Can edit residents in their facility
     'view:calls',
     'view:concerns',
-    'action:concerns',
+    'action:concerns',      // Can action concerns in their facility
     'view:lifebooks',
     'create:lifebook',
-    'view:reports',
-    'view:facilities', // Can view but not modify
+    'view:reports',         // Can view reports for their facility
+    // NO view:facilities - cannot access facilities tab
   ],
+  // STAFF: Read-only access to their facility's data
   STAFF: [
     'view:dashboard',
-    'view:residents',
-    'view:calls',
-    'view:concerns',
-    'view:lifebooks',
+    'view:residents',       // Read-only
+    'view:calls',           // Read-only
+    'view:concerns',        // Read-only (cannot action)
+    'view:lifebooks',       // Read-only
+    // NO view:reports - cannot access reports
+    // NO view:facilities - cannot access facilities
   ],
 };
 

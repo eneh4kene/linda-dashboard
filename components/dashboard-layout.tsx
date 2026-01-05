@@ -31,16 +31,28 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
 
   // Load selected facility from localStorage on mount
   useEffect(() => {
-    const stored = localStorage.getItem('selectedFacilityId');
-    if (stored) {
-      setSelectedFacilityId(stored);
-    } else if (facilities && facilities.length > 0) {
-      // Auto-select first facility if none selected
-      const firstFacilityId = facilities[0].id;
-      setSelectedFacilityId(firstFacilityId);
-      localStorage.setItem('selectedFacilityId', firstFacilityId);
+    // MANAGER/STAFF: Always use their assigned facility (no switching)
+    if (user && (user.role === 'MANAGER' || user.role === 'STAFF')) {
+      if (user.facilityId) {
+        setSelectedFacilityId(user.facilityId);
+        localStorage.setItem('selectedFacilityId', user.facilityId);
+      }
+      return;
     }
-  }, [facilities]);
+
+    // ADMIN: Can select from multiple facilities
+    if (user?.role === 'ADMIN') {
+      const stored = localStorage.getItem('selectedFacilityId');
+      if (stored) {
+        setSelectedFacilityId(stored);
+      } else if (facilities && facilities.length > 0) {
+        // Auto-select first facility if none selected
+        const firstFacilityId = facilities[0].id;
+        setSelectedFacilityId(firstFacilityId);
+        localStorage.setItem('selectedFacilityId', firstFacilityId);
+      }
+    }
+  }, [facilities, user]);
 
   // Save to localStorage when selection changes
   const handleFacilityChange = (facilityId: string) => {
@@ -81,37 +93,57 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
           })}
         </nav>
 
-        {/* Facility Selector (bottom of sidebar) */}
+        {/* Facility Selector/Display (bottom of sidebar) */}
         <div className="p-4 border-t border-gray-200 bg-white space-y-3">
-          {facilities && facilities.length > 0 ? (
-            <>
-              <div className="text-xs font-medium text-gray-500 uppercase tracking-wide">
-                Current Facility
-              </div>
-              <select
-                value={selectedFacilityId}
-                onChange={(e) => handleFacilityChange(e.target.value)}
-                className="w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-gray-900"
-              >
-                {facilities.map((facility: any) => (
-                  <option key={facility.id} value={facility.id}>
-                    {facility.name}
-                  </option>
-                ))}
-              </select>
-              {selectedFacility && (
-                <div className="text-xs text-gray-500">
-                  <div>{selectedFacility._count?.residents || 0} residents</div>
+          {user?.role === 'ADMIN' ? (
+            // ADMIN: Show facility selector to switch between facilities
+            facilities && facilities.length > 0 ? (
+              <>
+                <div className="text-xs font-medium text-gray-500 uppercase tracking-wide">
+                  Current Facility
                 </div>
-              )}
-            </>
+                <select
+                  value={selectedFacilityId}
+                  onChange={(e) => handleFacilityChange(e.target.value)}
+                  className="w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-gray-900"
+                >
+                  {facilities.map((facility: any) => (
+                    <option key={facility.id} value={facility.id}>
+                      {facility.name}
+                    </option>
+                  ))}
+                </select>
+                {selectedFacility && (
+                  <div className="text-xs text-gray-500">
+                    <div>{selectedFacility._count?.residents || 0} residents</div>
+                  </div>
+                )}
+              </>
+            ) : (
+              <div className="text-xs text-gray-500">
+                <Link href="/facilities" className="text-blue-600 hover:underline">
+                  Create a facility
+                </Link>{' '}
+                to get started
+              </div>
+            )
           ) : (
-            <div className="text-xs text-gray-500">
-              <Link href="/facilities" className="text-blue-600 hover:underline">
-                Create a facility
-              </Link>{' '}
-              to get started
-            </div>
+            // MANAGER/STAFF: Show their facility name (locked, no selector)
+            user?.facility && (
+              <>
+                <div className="text-xs font-medium text-gray-500 uppercase tracking-wide">
+                  Your Facility
+                </div>
+                <div className="px-3 py-2 text-sm bg-gray-50 border border-gray-200 rounded-md">
+                  {user.facility.name}
+                </div>
+                {selectedFacility && (
+                  <div className="text-xs text-gray-500">
+                    <div>{selectedFacility._count?.residents || 0} residents</div>
+                  </div>
+                )}
+              </>
+            )
           )}
         </div>
       </div>

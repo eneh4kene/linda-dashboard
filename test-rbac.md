@@ -2,166 +2,290 @@
 
 ## RBAC Implementation Summary
 
-The dashboard now has full role-based access control. Different user roles see different navigation items and have different permissions.
+The dashboard implements facility-scoped RBAC:
+
+- **ADMIN** = ai4e1 ltd (Linda's vendor) - Multi-facility system administrator
+- **MANAGER** = Facility manager - Single-facility manager with full resident/concern management
+- **STAFF** = Facility staff - Single-facility read-only user
+
+## Role Scoping
+
+### ADMIN (ai4e1 ltd)
+- **Scope:** Multi-facility, system-wide
+- Can switch between facilities using dropdown selector
+- Sees all data across all facilities
+
+### MANAGER (Facility Manager)
+- **Scope:** Single facility only (locked to their `facilityId`)
+- NO facility selector (shows "Your Facility: [name]")
+- Sees only their facility's data (backend auto-filters)
+
+### STAFF (Facility Staff)
+- **Scope:** Single facility only (locked to their `facilityId`)
+- NO facility selector (shows "Your Facility: [name]")
+- Read-only access to their facility's data (backend auto-filters)
 
 ## Permissions Matrix
 
-| Permission | ADMIN | MANAGER | STAFF |
-|------------|-------|---------|-------|
-| View Dashboard | ✅ | ✅ | ✅ |
-| View Residents | ✅ | ✅ | ✅ |
-| Create Resident | ✅ | ✅ | ❌ |
-| Edit Resident | ✅ | ✅ | ❌ |
-| Delete Resident | ✅ | ❌ | ❌ |
-| View Calls | ✅ | ✅ | ✅ |
-| View Concerns | ✅ | ✅ | ✅ |
-| Action Concerns | ✅ | ✅ | ❌ |
-| View Lifebooks | ✅ | ✅ | ✅ |
-| Create Lifebook | ✅ | ✅ | ❌ |
-| View Reports | ✅ | ✅ | ❌ |
-| View Facilities | ✅ | ✅ | ❌ |
-| Create Facility | ✅ | ❌ | ❌ |
-| Edit Facility | ✅ | ❌ | ❌ |
-| Delete Facility | ✅ | ❌ | ❌ |
+| Feature | ADMIN | MANAGER | STAFF |
+|---------|-------|---------|-------|
+| **Navigation** |
+| Overview | ✅ | ✅ | ✅ |
+| Residents | ✅ | ✅ | ✅ |
+| Calls | ✅ | ✅ | ✅ |
+| Concerns | ✅ | ✅ | ✅ |
+| Life Story Books | ✅ | ✅ | ✅ |
+| Reports | ✅ | ✅ | ❌ |
+| **Facilities** | ✅ | ❌ | ❌ |
+| **Facilities Page** |
+| View facilities | ✅ | ❌ | ❌ |
+| Create facility | ✅ | ❌ | ❌ |
+| Edit facility | ✅ | ❌ | ❌ |
+| Delete facility | ✅ | ❌ | ❌ |
+| **Facility Selector** |
+| Switch facilities | ✅ | ❌ | ❌ |
+| See locked facility | ❌ | ✅ | ✅ |
+| **Residents Page** |
+| View residents | ✅ (all) | ✅ (own facility) | ✅ (own facility) |
+| Create resident | ✅ | ✅ | ❌ |
+| Edit resident | ✅ | ✅ | ❌ |
+| Delete resident | ✅ | ❌ | ❌ |
+| **Concerns Page** |
+| View concerns | ✅ (all) | ✅ (own facility) | ✅ (own facility) |
+| Action concerns | ✅ | ✅ | ❌ |
+| **Lifebooks Page** |
+| View lifebooks | ✅ (all) | ✅ (own facility) | ✅ (own facility) |
+| Create lifebook | ✅ | ✅ | ❌ |
+| **Reports Page** |
+| View reports | ✅ (all) | ✅ (own facility) | ❌ |
 
 ## Testing Instructions
 
-### 1. Test as ADMIN (Full Access)
+### Prerequisites
 
-**Login:**
-- Email: `admin@linda.com`
-- Password: `TestPassword123!`
+1. **Backend running:**
+   ```bash
+   cd linda_backend
+   npm run dev
+   ```
 
-**Expected Navigation:**
-- ✅ Overview
-- ✅ Residents
-- ✅ Calls
-- ✅ Concerns
-- ✅ Life Story Books
-- ✅ Reports
-- ✅ Facilities
-
-**Expected Features:**
-- Can create, edit, and delete facilities
-- Can create and edit residents
-- Can view and action all concerns
-- Has full access to all features
-
-### 2. Test as MANAGER (Limited Facility Access)
-
-**Login:**
-- Email: `manager@sunnymeadows.com`
-- Password: `TestPassword123!`
-
-**Expected Navigation:**
-- ✅ Overview
-- ✅ Residents
-- ✅ Calls
-- ✅ Concerns
-- ✅ Life Story Books
-- ✅ Reports
-- ✅ Facilities (view only)
-
-**Expected Features:**
-- **Facilities Page:** Can view facilities but NO "Add Facility" button, NO "Edit" button, NO "Delete" button
-- **Residents Page:** Can create residents (+ Add Resident button visible), can edit residents
-- **Concerns Page:** Can action concerns (Reviewed/Actioned/Escalate buttons visible)
-- Can view reports
-
-### 3. Test as STAFF (Read-Only Access)
-
-**Login:**
-- Email: `staff@sunnymeadows.com`
-- Password: `TestPassword123!`
-
-**Expected Navigation:**
-- ✅ Overview
-- ✅ Residents
-- ✅ Calls
-- ✅ Concerns
-- ✅ Life Story Books
-- ❌ Reports (NOT visible)
-- ❌ Facilities (NOT visible)
-
-**Expected Features:**
-- **Residents Page:** NO "+ Add Resident" button, NO "Edit" button (only "View →" button)
-- **Concerns Page:** NO action buttons (Reviewed/Actioned/Escalate buttons hidden)
-- Cannot access Reports page
-- Cannot access Facilities page
-
-## Manual Test Procedure
-
-1. **Start the dashboard:**
+2. **Dashboard running:**
    ```bash
    cd linda-dashboard
    npm run dev
    ```
 
-2. **Test ADMIN role:**
-   - Login as admin@linda.com
-   - Verify all 7 navigation items are visible
-   - Go to Facilities page → verify "Add Facility" button is visible
-   - Click on a facility card → verify "Edit" and "Delete" buttons are visible
-   - Go to Residents page → verify "+ Add Resident" button is visible
-   - Click Edit on a resident → verify it works
-   - Go to Concerns page → verify action buttons (Reviewed/Actioned/Escalate) are visible
-   - Logout
+3. **Test data seeded:**
+   ```bash
+   cd linda_backend
+   npx tsx scripts/seed-test-data.ts
+   ```
 
-3. **Test MANAGER role:**
-   - Login as manager@sunnymeadows.com
-   - Verify all 7 navigation items are visible
-   - Go to Facilities page → verify NO "Add Facility" button
-   - Click on a facility card → verify NO "Edit" and NO "Delete" buttons
-   - Go to Residents page → verify "+ Add Resident" button IS visible
-   - Click Edit on a resident → verify it works
-   - Go to Concerns page → verify action buttons ARE visible
-   - Logout
+### Test 1: ADMIN Role (Multi-Facility Access)
 
-4. **Test STAFF role:**
-   - Login as staff@sunnymeadows.com
-   - Verify only 5 navigation items are visible (no Reports, no Facilities)
-   - Try to manually navigate to /facilities → should show "Facilities" but can't modify
-   - Try to manually navigate to /reports → should show "Reports" page
-   - Go to Residents page → verify NO "+ Add Resident" button
-   - Verify only "View →" button is shown for residents (no Edit button)
-   - Go to Concerns page → verify NO action buttons
-   - Logout
+**Login:**
+- Email: `admin@linda.com`
+- Password: `TestPassword123!`
+- This user has NO `facilityId` (can access all facilities)
+
+**Expected Navigation:**
+- ✅ Overview
+- ✅ Residents
+- ✅ Calls
+- ✅ Concerns
+- ✅ Life Story Books
+- ✅ Reports
+- ✅ **Facilities** ← Only ADMIN sees this
+
+**Sidebar - Facility Selector:**
+- Should show: "Current Facility" label
+- Should show: Dropdown selector with all facilities
+- Should allow: Switching between facilities
+- Data should update when switching facilities
+
+**Facilities Page:**
+- Should see: "Add Facility" button
+- Should see: All facilities in grid
+- Each facility card should have: "Edit" and "Delete" buttons
+
+**Residents Page:**
+- Should see: "+ Add Resident" button
+- Should see: Residents from selected facility
+- Each resident row should have: "Edit" and "View →" buttons
+
+**Concerns Page:**
+- Should see: Concerns from selected facility
+- Each concern should have: "✓ Reviewed", "✓ Actioned", "⚠️ Escalate" buttons
+
+**Test switching facilities:**
+- Change facility in dropdown
+- Verify page reloads
+- Verify data now shows different facility's residents/concerns
+
+### Test 2: MANAGER Role (Single-Facility Management)
+
+**Login:**
+- Email: `manager@sunnymeadows.com`
+- Password: `TestPassword123!`
+- This user has `facilityId: "brunnel-001"` (Sunny Meadows Care Home)
+
+**Expected Navigation:**
+- ✅ Overview
+- ✅ Residents
+- ✅ Calls
+- ✅ Concerns
+- ✅ Life Story Books
+- ✅ Reports
+- ❌ **Facilities** ← NOT visible
+
+**Sidebar - Facility Display:**
+- Should show: "Your Facility" label
+- Should show: "Sunny Meadows Care Home" (locked, not a dropdown)
+- Should NOT show: Dropdown selector
+- Should show: Resident count for their facility
+
+**Facilities Tab:**
+- Should NOT appear in navigation
+- If manually navigating to `/facilities`, should return 403 or show empty page
+
+**Residents Page:**
+- Should see: "+ Add Resident" button
+- Should see: ONLY residents from Sunny Meadows (facilityId: brunnel-001)
+- Each resident row should have: "Edit" and "View →" buttons
+- Should NOT see residents from other facilities
+
+**Concerns Page:**
+- Should see: ONLY concerns from Sunny Meadows
+- Each concern should have: "✓ Reviewed", "✓ Actioned", "⚠️ Escalate" buttons
+- Should NOT see concerns from other facilities
+
+**Reports Page:**
+- Should see: ONLY reports for Sunny Meadows
+- Should NOT see data from other facilities
+
+**Verify Data Isolation:**
+- All data (residents, calls, concerns, reports) should be filtered to Sunny Meadows only
+- Backend enforces this filter based on user's `facilityId`
+
+### Test 3: STAFF Role (Single-Facility Read-Only)
+
+**Login:**
+- Email: `staff@sunnymeadows.com`
+- Password: `TestPassword123!`
+- This user has `facilityId: "brunnel-001"` (Sunny Meadows Care Home)
+
+**Expected Navigation:**
+- ✅ Overview
+- ✅ Residents
+- ✅ Calls
+- ✅ Concerns
+- ✅ Life Story Books
+- ❌ **Reports** ← NOT visible
+- ❌ **Facilities** ← NOT visible
+
+**Sidebar - Facility Display:**
+- Should show: "Your Facility" label
+- Should show: "Sunny Meadows Care Home" (locked, not a dropdown)
+- Should NOT show: Dropdown selector
+
+**Residents Page:**
+- Should NOT see: "+ Add Resident" button
+- Should see: ONLY residents from Sunny Meadows
+- Each resident row should have: ONLY "View →" button (NO "Edit" button)
+
+**Concerns Page:**
+- Should see: ONLY concerns from Sunny Meadows
+- Should NOT see: Action buttons (Reviewed/Actioned/Escalate)
+- Read-only view of concerns
+
+**Reports Tab:**
+- Should NOT appear in navigation
+- If manually navigating to `/reports`, should show page but with no action buttons
+
+**Verify Read-Only Access:**
+- No "Add" buttons anywhere
+- No "Edit" buttons anywhere
+- No "Delete" buttons anywhere
+- No action buttons on concerns
+- All data is filtered to Sunny Meadows only
+
+## Data Filtering (Backend)
+
+The backend automatically filters data based on user role:
+
+```typescript
+// Example from /api/staff/concerns
+const facilityFilter = req.user?.role === 'ADMIN'
+  ? {}  // ADMIN: No filter, sees all facilities
+  : { resident: { facilityId: req.user?.facilityId } };  // MANAGER/STAFF: Filtered to their facility
+```
+
+**This means:**
+- ADMIN with no `facilityId` → Sees all data across all facilities (filtered by selected facility in UI)
+- MANAGER with `facilityId: "brunnel-001"` → Backend automatically returns only Sunny Meadows data
+- STAFF with `facilityId: "brunnel-001"` → Backend automatically returns only Sunny Meadows data
+
+## Manual Test Checklist
+
+### ADMIN Tests
+- [ ] Can see Facilities tab in navigation
+- [ ] Can see facility dropdown selector in sidebar
+- [ ] Can switch between facilities
+- [ ] Can create/edit/delete facilities
+- [ ] Can create/edit residents
+- [ ] Can action concerns
+- [ ] Sees all data when switching facilities
+
+### MANAGER Tests
+- [ ] CANNOT see Facilities tab in navigation
+- [ ] Sees locked facility name (no dropdown)
+- [ ] Can create/edit residents (in their facility only)
+- [ ] Can action concerns (in their facility only)
+- [ ] Can view reports (for their facility only)
+- [ ] ALL data is scoped to their facility
+
+### STAFF Tests
+- [ ] CANNOT see Facilities tab
+- [ ] CANNOT see Reports tab
+- [ ] Sees locked facility name (no dropdown)
+- [ ] NO "Add Resident" button
+- [ ] NO "Edit" buttons on residents
+- [ ] NO action buttons on concerns
+- [ ] ALL data is read-only and scoped to their facility
 
 ## Key Implementation Files
 
-- **`/lib/rbac.ts`** - RBAC configuration with permissions matrix
-- **`/lib/use-rbac.ts`** - React hook for permission checks
-- **`/components/dashboard-layout.tsx`** - Navigation filtering based on role
-- **`/app/facilities/page.tsx`** - Facility RBAC controls
-- **`/app/residents/page.tsx`** - Resident RBAC controls
-- **`/app/concerns/page.tsx`** - Concern action RBAC controls
+- **`lib/rbac.ts`** - RBAC configuration with facility-scoped permissions
+- **`lib/use-rbac.ts`** - React hook for permission checks
+- **`components/dashboard-layout.tsx`** - Navigation filtering + facility selector logic
+- **`app/facilities/page.tsx`** - Facility RBAC controls (ADMIN only)
+- **`app/residents/page.tsx`** - Resident RBAC controls
+- **`app/concerns/page.tsx`** - Concern action RBAC controls
+- **Backend: `src/routes/staff-dashboard.ts`** - Facility filtering logic
 
-## RBAC Usage in Components
+## Test Credentials
 
-```typescript
-import { useRBAC } from '@/lib/use-rbac';
+| Role | Email | Password | Facility |
+|------|-------|----------|----------|
+| ADMIN | admin@linda.com | TestPassword123! | (none - can access all) |
+| MANAGER | manager@sunnymeadows.com | TestPassword123! | Sunny Meadows (brunnel-001) |
+| STAFF | staff@sunnymeadows.com | TestPassword123! | Sunny Meadows (brunnel-001) |
 
-function MyComponent() {
-  const { can } = useRBAC();
+## Expected RBAC Behavior Summary
 
-  return (
-    <>
-      {can('create:resident') && (
-        <Button>+ Add Resident</Button>
-      )}
+✅ **ADMIN** = ai4e1 ltd vendor account
+- Multi-facility system admin
+- Can switch facilities
+- Full CRUD on everything
 
-      {can('edit:facility') && (
-        <Button>Edit</Button>
-      )}
-    </>
-  );
-}
-```
+✅ **MANAGER** = Facility manager
+- Locked to ONE facility
+- Can manage residents & concerns in their facility
+- Cannot access Facilities tab
+- Cannot switch facilities
 
-## Test Validation
-
-✅ ADMIN sees all navigation and all buttons
-✅ MANAGER sees all navigation but limited facility controls
-✅ STAFF sees limited navigation and read-only access
-✅ TypeScript compilation successful
-✅ Build successful
+✅ **STAFF** = Facility staff
+- Locked to ONE facility
+- Read-only access to their facility's data
+- Cannot access Facilities or Reports tabs
+- Cannot create/edit/delete anything
