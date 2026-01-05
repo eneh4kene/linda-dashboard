@@ -69,6 +69,12 @@ export class ApiClient {
     });
   }
 
+  async deleteResident(id: string) {
+    return this.request<void>(`/api/residents/${id}`, {
+      method: 'DELETE',
+    });
+  }
+
   // Family Members
   async getFamilyMembers(residentId: string) {
     return this.request<any[]>(`/api/family-members/resident/${residentId}`);

@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { DashboardLayout } from '@/components/dashboard-layout';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -18,15 +18,28 @@ import { apiClient } from '@/lib/api-client';
 import Link from 'next/link';
 import { ResidentFormDialog } from '@/components/resident-form-dialog';
 import { useRBAC } from '@/lib/use-rbac';
+import { toast } from 'sonner';
 
 export default function ResidentsPage() {
   const { can } = useRBAC();
+  const queryClient = useQueryClient();
   const [editingResident, setEditingResident] = useState<any>(null);
   const [isFormOpen, setIsFormOpen] = useState(false);
 
   const { data: residents, isLoading } = useQuery({
     queryKey: ['residents'],
     queryFn: () => apiClient.getResidents(),
+  });
+
+  const deleteMutation = useMutation({
+    mutationFn: (id: string) => apiClient.deleteResident(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['residents'] });
+      toast.success('Resident deleted successfully');
+    },
+    onError: (error: any) => {
+      toast.error(error.message || 'Failed to delete resident');
+    },
   });
 
   return (
@@ -140,6 +153,25 @@ export default function ResidentsPage() {
                               View →
                             </Button>
                           </Link>
+                          {can('delete:resident') && (
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                              onClick={() => {
+                                if (
+                                  confirm(
+                                    `Are you sure you want to delete ${resident.firstName} ${resident.lastName || ''}? This will permanently delete all their data including calls, memories, and life story book.`
+                                  )
+                                ) {
+                                  deleteMutation.mutate(resident.id);
+                                }
+                              }}
+                              disabled={deleteMutation.isPending}
+                            >
+                              Delete
+                            </Button>
+                          )}
                         </div>
                       </TableCell>
                     </TableRow>
