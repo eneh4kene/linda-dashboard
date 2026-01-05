@@ -50,6 +50,7 @@ export const rolePermissions: Record<UserRole, Permission[]> = {
     'view:residents',
     'create:resident',      // Can create residents in their facility
     'edit:resident',        // Can edit residents in their facility
+    'delete:resident',      // Can delete residents in their facility
     'view:calls',
     'view:concerns',
     'action:concerns',      // Can action concerns in their facility

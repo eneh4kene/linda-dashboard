@@ -49,7 +49,7 @@ The dashboard implements facility-scoped RBAC:
 | View residents | ✅ (all) | ✅ (own facility) | ✅ (own facility) |
 | Create resident | ✅ | ✅ | ❌ |
 | Edit resident | ✅ | ✅ | ❌ |
-| Delete resident | ✅ | ❌ | ❌ |
+| Delete resident | ✅ | ✅ (own facility) | ❌ |
 | **Concerns Page** |
 | View concerns | ✅ (all) | ✅ (own facility) | ✅ (own facility) |
 | Action concerns | ✅ | ✅ | ❌ |
@@ -151,8 +151,9 @@ The dashboard implements facility-scoped RBAC:
 **Residents Page:**
 - Should see: "+ Add Resident" button
 - Should see: ONLY residents from Sunny Meadows (facilityId: brunnel-001)
-- Each resident row should have: "Edit" and "View →" buttons
+- Each resident row should have: "Edit", "View →", and "Delete" buttons
 - Should NOT see residents from other facilities
+- Can delete residents in their own facility
 
 **Concerns Page:**
 - Should see: ONLY concerns from Sunny Meadows
@@ -239,7 +240,7 @@ const facilityFilter = req.user?.role === 'ADMIN'
 ### MANAGER Tests
 - [ ] CANNOT see Facilities tab in navigation
 - [ ] Sees locked facility name (no dropdown)
-- [ ] Can create/edit residents (in their facility only)
+- [ ] Can create/edit/delete residents (in their facility only)
 - [ ] Can action concerns (in their facility only)
 - [ ] Can view reports (for their facility only)
 - [ ] ALL data is scoped to their facility
@@ -280,7 +281,8 @@ const facilityFilter = req.user?.role === 'ADMIN'
 
 ✅ **MANAGER** = Facility manager
 - Locked to ONE facility
-- Can manage residents & concerns in their facility
+- Can create/edit/delete residents in their facility
+- Can manage concerns in their facility
 - Cannot access Facilities tab
 - Cannot switch facilities
 
