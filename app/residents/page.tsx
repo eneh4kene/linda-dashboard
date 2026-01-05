@@ -17,8 +17,10 @@ import {
 import { apiClient } from '@/lib/api-client';
 import Link from 'next/link';
 import { ResidentFormDialog } from '@/components/resident-form-dialog';
+import { useRBAC } from '@/lib/use-rbac';
 
 export default function ResidentsPage() {
+  const { can } = useRBAC();
   const [editingResident, setEditingResident] = useState<any>(null);
   const [isFormOpen, setIsFormOpen] = useState(false);
 
@@ -38,12 +40,14 @@ export default function ResidentsPage() {
               Manage resident profiles, consent, and preferences
             </p>
           </div>
-          <Button onClick={() => {
-            setEditingResident(null);
-            setIsFormOpen(true);
-          }}>
-            + Add Resident
-          </Button>
+          {can('create:resident') && (
+            <Button onClick={() => {
+              setEditingResident(null);
+              setIsFormOpen(true);
+            }}>
+              + Add Resident
+            </Button>
+          )}
         </div>
 
         {/* Residents Table */}
@@ -119,16 +123,18 @@ export default function ResidentsPage() {
                       </TableCell>
                       <TableCell>
                         <div className="flex gap-2">
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => {
-                              setEditingResident(resident);
-                              setIsFormOpen(true);
-                            }}
-                          >
-                            Edit
-                          </Button>
+                          {can('edit:resident') && (
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => {
+                                setEditingResident(resident);
+                                setIsFormOpen(true);
+                              }}
+                            >
+                              Edit
+                            </Button>
+                          )}
                           <Link href={`/residents/${resident.id}`}>
                             <Button variant="ghost" size="sm">
                               View →

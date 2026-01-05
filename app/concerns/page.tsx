@@ -8,8 +8,11 @@ import { Button } from '@/components/ui/button';
 import { apiClient } from '@/lib/api-client';
 import { formatDistanceToNow } from 'date-fns';
 import { toast } from 'sonner';
+import { useRBAC } from '@/lib/use-rbac';
 
 export default function ConcernsPage() {
+  const { can } = useRBAC();
+
   const { data: concerns } = useQuery({
     queryKey: ['concerns'],
     queryFn: () => apiClient.getConcerns(),
@@ -99,7 +102,7 @@ export default function ConcernsPage() {
             </CardHeader>
             <CardContent className="space-y-4">
               {highPriority.map((concern: any, idx: number) => (
-                <ConcernCard key={idx} concern={concern} />
+                <ConcernCard key={idx} concern={concern} canAction={can('action:concerns')} />
               ))}
             </CardContent>
           </Card>
@@ -115,7 +118,7 @@ export default function ConcernsPage() {
             </CardHeader>
             <CardContent className="space-y-4">
               {mediumPriority.map((concern: any, idx: number) => (
-                <ConcernCard key={idx} concern={concern} />
+                <ConcernCard key={idx} concern={concern} canAction={can('action:concerns')} />
               ))}
             </CardContent>
           </Card>
@@ -131,7 +134,7 @@ export default function ConcernsPage() {
             </CardHeader>
             <CardContent className="space-y-4">
               {lowPriority.map((concern: any, idx: number) => (
-                <ConcernCard key={idx} concern={concern} />
+                <ConcernCard key={idx} concern={concern} canAction={can('action:concerns')} />
               ))}
             </CardContent>
           </Card>
@@ -154,7 +157,7 @@ export default function ConcernsPage() {
   );
 }
 
-function ConcernCard({ concern }: { concern: any }) {
+function ConcernCard({ concern, canAction }: { concern: any; canAction: boolean }) {
   const severityColors = {
     high: 'bg-red-100 text-red-900 border-red-200',
     medium: 'bg-orange-100 text-orange-900 border-orange-200',
@@ -215,32 +218,34 @@ function ConcernCard({ concern }: { concern: any }) {
         <div className="font-medium">{concern.concern.description}</div>
       </div>
 
-      <div className="flex gap-2">
-        <Button
-          size="sm"
-          variant="outline"
-          className="bg-white"
-          onClick={handleReviewed}
-        >
-          ✓ Reviewed
-        </Button>
-        <Button
-          size="sm"
-          variant="outline"
-          className="bg-white"
-          onClick={handleActioned}
-        >
-          ✓ Actioned
-        </Button>
-        <Button
-          size="sm"
-          variant="outline"
-          className="bg-white"
-          onClick={handleEscalate}
-        >
-          ⚠️ Escalate
-        </Button>
-      </div>
+      {canAction && (
+        <div className="flex gap-2">
+          <Button
+            size="sm"
+            variant="outline"
+            className="bg-white"
+            onClick={handleReviewed}
+          >
+            ✓ Reviewed
+          </Button>
+          <Button
+            size="sm"
+            variant="outline"
+            className="bg-white"
+            onClick={handleActioned}
+          >
+            ✓ Actioned
+          </Button>
+          <Button
+            size="sm"
+            variant="outline"
+            className="bg-white"
+            onClick={handleEscalate}
+          >
+            ⚠️ Escalate
+          </Button>
+        </div>
+      )}
     </div>
   );
 }

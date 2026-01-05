@@ -8,20 +8,15 @@ import { cn } from '@/lib/utils';
 import { apiClient } from '@/lib/api-client';
 import { useAuth } from '@/lib/auth-context';
 import { Button } from '@/components/ui/button';
-
-const navigation = [
-  { name: 'Overview', href: '/', icon: '📊' },
-  { name: 'Residents', href: '/residents', icon: '👥' },
-  { name: 'Calls', href: '/calls', icon: '📞' },
-  { name: 'Concerns', href: '/concerns', icon: '🚨' },
-  { name: 'Life Story Books', href: '/lifebooks', icon: '📖' },
-  { name: 'Reports', href: '/reports', icon: '📈' },
-  { name: 'Facilities', href: '/facilities', icon: '🏥' },
-];
+import { getAuthorizedNavigation, navigation } from '@/lib/rbac';
 
 export function DashboardLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
+  const { user } = useAuth();
   const [selectedFacilityId, setSelectedFacilityId] = useState<string>('');
+
+  // Get navigation items based on user role
+  const authorizedNavigation = user ? getAuthorizedNavigation(user.role) : [];
 
   const { data: facilities } = useQuery({
     queryKey: ['facilities'],
@@ -66,7 +61,7 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
 
         {/* Navigation */}
         <nav className="flex-1 p-4 space-y-1">
-          {navigation.map((item) => {
+          {authorizedNavigation.map((item) => {
             const isActive = pathname === item.href;
             return (
               <Link
@@ -127,7 +122,7 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
         <header className="h-16 bg-white border-b border-gray-200 flex items-center justify-between px-8">
           <div className="flex items-center gap-4">
             <h2 className="text-lg font-semibold text-gray-900">
-              {navigation.find((item) => item.href === pathname)?.name || 'Dashboard'}
+              {authorizedNavigation.find((item) => item.href === pathname)?.name || 'Dashboard'}
             </h2>
           </div>
           <UserMenu />

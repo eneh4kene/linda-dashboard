@@ -16,8 +16,10 @@ import {
 } from '@/components/ui/dialog';
 import { apiClient } from '@/lib/api-client';
 import { toast } from 'sonner';
+import { useRBAC } from '@/lib/use-rbac';
 
 export default function FacilitiesPage() {
+  const { can } = useRBAC();
   const queryClient = useQueryClient();
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const [editingFacility, setEditingFacility] = useState<any>(null);
@@ -74,20 +76,22 @@ export default function FacilitiesPage() {
               Manage care facilities and their settings
             </p>
           </div>
-          <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
-            <DialogTrigger asChild>
-              <Button>Add Facility</Button>
-            </DialogTrigger>
-            <DialogContent>
-              <DialogHeader>
-                <DialogTitle>Create New Facility</DialogTitle>
-              </DialogHeader>
-              <FacilityForm
-                onSubmit={(data) => createMutation.mutate(data)}
-                isLoading={createMutation.isPending}
-              />
-            </DialogContent>
-          </Dialog>
+          {can('create:facility') && (
+            <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
+              <DialogTrigger asChild>
+                <Button>Add Facility</Button>
+              </DialogTrigger>
+              <DialogContent>
+                <DialogHeader>
+                  <DialogTitle>Create New Facility</DialogTitle>
+                </DialogHeader>
+                <FacilityForm
+                  onSubmit={(data) => createMutation.mutate(data)}
+                  isLoading={createMutation.isPending}
+                />
+              </DialogContent>
+            </Dialog>
+          )}
         </div>
 
         {/* Facilities Grid */}
@@ -101,47 +105,51 @@ export default function FacilitiesPage() {
                   <CardTitle className="flex items-center justify-between">
                     <span>{facility.name}</span>
                     <div className="flex gap-2">
-                      <Dialog
-                        open={editingFacility?.id === facility.id}
-                        onOpenChange={(open) => !open && setEditingFacility(null)}
-                      >
-                        <DialogTrigger asChild>
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => setEditingFacility(facility)}
-                          >
-                            Edit
-                          </Button>
-                        </DialogTrigger>
-                        <DialogContent>
-                          <DialogHeader>
-                            <DialogTitle>Edit Facility</DialogTitle>
-                          </DialogHeader>
-                          <FacilityForm
-                            facility={facility}
-                            onSubmit={(data) =>
-                              updateMutation.mutate({ id: facility.id, data })
+                      {can('edit:facility') && (
+                        <Dialog
+                          open={editingFacility?.id === facility.id}
+                          onOpenChange={(open) => !open && setEditingFacility(null)}
+                        >
+                          <DialogTrigger asChild>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => setEditingFacility(facility)}
+                            >
+                              Edit
+                            </Button>
+                          </DialogTrigger>
+                          <DialogContent>
+                            <DialogHeader>
+                              <DialogTitle>Edit Facility</DialogTitle>
+                            </DialogHeader>
+                            <FacilityForm
+                              facility={facility}
+                              onSubmit={(data) =>
+                                updateMutation.mutate({ id: facility.id, data })
+                              }
+                              isLoading={updateMutation.isPending}
+                            />
+                          </DialogContent>
+                        </Dialog>
+                      )}
+                      {can('delete:facility') && (
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => {
+                            if (
+                              confirm(
+                                `Are you sure you want to delete ${facility.name}? This will delete all associated residents and data.`
+                              )
+                            ) {
+                              deleteMutation.mutate(facility.id);
                             }
-                            isLoading={updateMutation.isPending}
-                          />
-                        </DialogContent>
-                      </Dialog>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => {
-                          if (
-                            confirm(
-                              `Are you sure you want to delete ${facility.name}? This will delete all associated residents and data.`
-                            )
-                          ) {
-                            deleteMutation.mutate(facility.id);
-                          }
-                        }}
-                      >
-                        Delete
-                      </Button>
+                          }}
+                        >
+                          Delete
+                        </Button>
+                      )}
                     </div>
                   </CardTitle>
                 </CardHeader>
