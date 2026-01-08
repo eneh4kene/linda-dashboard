@@ -29,14 +29,19 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50">
-      <Card className="w-full max-w-md">
-        <CardHeader className="space-y-1">
-          <CardTitle className="text-2xl font-bold text-center">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-pink-50 via-white to-purple-50">
+      <Card className="w-full max-w-md shadow-xl">
+        <CardHeader className="space-y-4">
+          <div className="flex justify-center">
+            <div className="w-20 h-20 rounded-full bg-gradient-to-br from-pink-400 to-pink-600 flex items-center justify-center shadow-lg">
+              <span className="text-4xl font-bold text-white">L</span>
+            </div>
+          </div>
+          <CardTitle className="text-3xl font-bold text-center bg-gradient-to-r from-pink-600 to-purple-600 bg-clip-text text-transparent">
             Linda Dashboard
           </CardTitle>
           <p className="text-sm text-gray-600 text-center">
-            Sign in to your account
+            AI-powered care companion platform
           </p>
         </CardHeader>
         <CardContent>
