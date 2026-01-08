@@ -75,30 +75,6 @@ export default function LoginPage() {
               {isLoading ? 'Signing in...' : 'Sign In'}
             </Button>
           </form>
-
-          <div className="mt-6 pt-6 border-t border-gray-200">
-            <p className="text-xs text-gray-500 text-center">
-              Demo Credentials:
-            </p>
-            <div className="mt-2 space-y-1 text-xs text-gray-600">
-              <div className="flex justify-between">
-                <span>Admin:</span>
-                <span className="font-mono">admin@linda.com</span>
-              </div>
-              <div className="flex justify-between">
-                <span>Manager:</span>
-                <span className="font-mono">manager@sunnymeadows.com</span>
-              </div>
-              <div className="flex justify-between">
-                <span>Staff:</span>
-                <span className="font-mono">staff@sunnymeadows.com</span>
-              </div>
-              <div className="text-center mt-2">
-                <span>Password: </span>
-                <span className="font-mono">TestPassword123!</span>
-              </div>
-            </div>
-          </div>
         </CardContent>
       </Card>
     </div>
