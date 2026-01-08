@@ -10,12 +10,6 @@ const inter = Inter({ subsets: ["latin"] });
 export const metadata: Metadata = {
   title: "Linda Dashboard",
   description: "Care home management dashboard for Linda AI companion",
-  icons: {
-    icon: [
-      { url: '/icon.svg', type: 'image/svg+xml' },
-      { url: '/favicon.ico', sizes: 'any' }
-    ],
-  },
 };
 
 export default function RootLayout({
