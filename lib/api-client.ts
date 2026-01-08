@@ -167,6 +167,87 @@ export class ApiClient {
       method: 'DELETE',
     });
   }
+
+  // Memory Layer - Patterns
+  async getResidentPattern(residentId: string) {
+    return this.request<any>(`/api/patterns/${residentId}`);
+  }
+
+  async updateResidentPattern(residentId: string, data: any) {
+    return this.request<any>(`/api/patterns/${residentId}`, {
+      method: 'PATCH',
+      body: JSON.stringify(data),
+    });
+  }
+
+  async getCallStates(residentId: string, limit: number = 20) {
+    return this.request<any[]>(`/api/patterns/${residentId}/call-states?limit=${limit}`);
+  }
+
+  // Memory Layer - Events
+  async getAnticipatedEvents(residentId: string, status?: string) {
+    const query = status ? `?status=${status}` : '';
+    return this.request<any[]>(`/api/events?residentId=${residentId}${query}`);
+  }
+
+  async createAnticipatedEvent(data: any) {
+    return this.request<any>('/api/events', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
+  }
+
+  async updateAnticipatedEvent(id: string, data: any) {
+    return this.request<any>(`/api/events/${id}`, {
+      method: 'PATCH',
+      body: JSON.stringify(data),
+    });
+  }
+
+  async markEventAsAsked(id: string, outcomeNotes?: string) {
+    return this.request<any>(`/api/events/${id}/mark-asked`, {
+      method: 'PATCH',
+      body: JSON.stringify({ outcomeNotes }),
+    });
+  }
+
+  async deleteAnticipatedEvent(id: string) {
+    return this.request<void>(`/api/events/${id}`, {
+      method: 'DELETE',
+    });
+  }
+
+  // Memory Layer - Callbacks
+  async getCallbacks(residentId: string, stillLands?: boolean) {
+    const query = stillLands !== undefined ? `&stillLands=${stillLands}` : '';
+    return this.request<any[]>(`/api/callbacks?residentId=${residentId}${query}`);
+  }
+
+  async createCallback(data: any) {
+    return this.request<any>('/api/callbacks', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
+  }
+
+  async updateCallback(id: string, data: any) {
+    return this.request<any>(`/api/callbacks/${id}`, {
+      method: 'PATCH',
+      body: JSON.stringify(data),
+    });
+  }
+
+  async markCallbackAsUsed(id: string) {
+    return this.request<any>(`/api/callbacks/${id}/mark-used`, {
+      method: 'PATCH',
+    });
+  }
+
+  async deleteCallback(id: string) {
+    return this.request<void>(`/api/callbacks/${id}`, {
+      method: 'DELETE',
+    });
+  }
 }
 
 export const apiClient = new ApiClient();

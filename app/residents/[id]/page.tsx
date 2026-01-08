@@ -12,10 +12,12 @@ import { useParams } from 'next/navigation';
 import Link from 'next/link';
 import { ResidentFormDialog } from '@/components/resident-form-dialog';
 import { FamilyMemberFormDialog } from '@/components/family-member-form-dialog';
+import { useRBAC } from '@/lib/use-rbac';
 
 export default function ResidentProfilePage() {
   const params = useParams();
   const residentId = params.id as string;
+  const { role } = useRBAC();
   const [isEditFormOpen, setIsEditFormOpen] = useState(false);
   const [isFamilyFormOpen, setIsFamilyFormOpen] = useState(false);
   const [editingFamilyMember, setEditingFamilyMember] = useState<any>(null);
@@ -73,6 +75,13 @@ export default function ResidentProfilePage() {
             )}
           </div>
           <div className="flex gap-2">
+            {role === 'ADMIN' && (
+              <Link href={`/residents/${residentId}/intelligence`}>
+                <Button variant="outline">
+                  🧠 Intelligence
+                </Button>
+              </Link>
+            )}
             <Button variant="outline" onClick={() => setIsEditFormOpen(true)}>
               Edit Profile
             </Button>
