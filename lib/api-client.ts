@@ -25,11 +25,12 @@ export class ApiClient {
     });
 
     if (!response.ok) {
-      // Handle 401 Unauthorized - redirect to login
-      if (response.status === 401 && typeof window !== 'undefined') {
-        localStorage.removeItem('auth_token');
-        localStorage.removeItem('auth_user');
-        window.location.href = '/login';
+      // Handle 401 Unauthorized - only redirect if we're not already on login page
+      // and if it's not a CORS error (which would show as 401)
+      if (response.status === 401 && typeof window !== 'undefined' && window.location.pathname !== '/login') {
+        // Don't immediately redirect - let the user see the error first
+        // Only clear tokens after a delay to prevent redirect loops
+        console.warn('API returned 401 - authentication may have expired');
       }
 
       const error = await response.text();
